@@ -94,7 +94,7 @@
 <body>
 
 <div class="container">
-    <h2>🎰 야짤 가챠</h2>
+    <h2>🎰 야짤을 얻기위해하는 가챠</h2>
     
     <!-- 파일 여러 개 넣는 업로드 구역 -->
     <div class="upload-box" onclick="document.getElementById('fileInput').click()">
@@ -104,7 +104,22 @@
     </div>
 
     <!-- 뽑기 버튼 -->
-    <button class="btn-draw" id="drawBtn" onclick="pickMyImage()">🎲 무작위 이미지 뽑기</button>
+    
+<button class="btn-draw" id="drawBtn" onclick="pickMyImage()">🎲 무작위 이미지 뽑기</button>
+
+<div style="
+    margin-top:15px;
+    background:#fff5f5;
+    border-radius:12px;
+    padding:12px;
+    font-weight:bold;
+    color:#ff4757;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+">
+    🔥 확률 3배 보너스까지
+    <span id="boostCounter">10회 남음</span>
+</div>
+
 
     <!-- 뽑힌 결과 상자 -->
     <div class="result-box" id="resultDisplay">
@@ -131,20 +146,50 @@
 <script>
 // 각 등급 정보와 확률(가중치) 매핑 데이터 구조
 const GRADE_RULES = {
-    mythic:  { name: "👑 신화",    class: "rarity-mythic",  bgClass: "bg-mythic",  weight: 100 },
-    legend:  { name: "🌟 레전드",  class: "rarity-legend",  bgClass: "bg-legend",  weight: 4 },
-    epic:    { name: "🔮 에픽",    class: "rarity-epic",    bgClass: "bg-epic",    weight: 7 },
+	secret:  { name: "🌌 비밀",    class: "rarity-secret",  bgClass: "bg-secret",  weight: 0.00000001 },
+    mythic:  { name: "👑 신화",    class: "rarity-mythic",  bgClass: "bg-mythic",  weight: 0.1 },
+    legend:  { name: "🌟 레전드",  class: "rarity-legend",  bgClass: "bg-legend",  weight: 1 },
+    epic:    { name: "🔮 에픽",    class: "rarity-epic",    bgClass: "bg-epic",    weight: 5 },
     rare:    { name: "🔹 레어",    class: "rarity-rare",    bgClass: "bg-rare",    weight: 16 },
-    uncommon:{ name: "🌿 희귀",    class: "rarity-uncommon",bgClass: "bg-uncommon",weight: 32 },
-    common:  { name: "⚙️ 일반",    class: "rarity-common",  bgClass: "bg-common",  weight: 40 }
+    uncommon:{ name: "🌿 희귀",    class: "rarity-uncommon",bgClass: "bg-uncommon",weight: 30 },
+    common:  { name: "⚙️ 일반",    class: "rarity-common",  bgClass: "bg-common",  weight: 45 }
 };
 
 // 기본 이미지 배열에 지정해주신 등급(확률 비율) 부여
 let myImagePool = [
-    { url: "https://i.namu.wiki/i/bGnYOczdEsPkDk3HMfzJJwoPl1NPzDPDpyshQuiT9gA_DrvlvF5rpAc1lJ6CRdbro-xreQFginzvV2_cXunWrA.webp", grade: "common" },
-    { url:  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzh2-PPcKix4V07xfn8Wrqk3t__cmmgGmpqA&s", grade: "uncommon" },
-    { url: "https://avatars.mds.yandex.net/i?id=94f92724f5046813d0952eeaf21390ffb13914c1-5225268-images-thumbs&n=13", grade: "epic" },
-	{ url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f593ed&", grade: "mythic" },
+    { url: "https://i.namu.wiki/i/bGnYOczdEsPkDk3HMfzJJwoPl1NPzDPDpyshQuiT9gA_DrvlvF5rpAc1lJ6CRdbro-xreQFginzvV2_cXunWrA.webp", grade: "common"},
+	{ url: "https://pbs.twimg.com/media/HImtL3Pb0AAbTxs.jpg:large", grade: "common"},
+	{ url: "https://i.namu.wiki/i/bGnYOczdEsPkDk3HMfzJJwoPl1NPzDPDpyshQuiT9gA_DrvlvF5rpAc1lJ6CRdbro-xreQFginzvV2_cXunWrA.webp", grade: "common"},
+	{ url: "https://pbs.twimg.com/media/HImhTHFagAA4Kza.jpg:large", grade: "common"},
+	{ url: "https://pbs.twimg.com/media/HIkQybgbgAEDJ-L.jpg:large", grade: "common"},
+	{ url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO4_HAEzJO-5GjbKGg9Gu32ovLEwwvjHSJGQ&s", grade: "common"},
+	{ url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO4_HAEzJO-5GjbKGg9Gu32ovLEwwvjHSJGQ&s", grade: "common"},
+	{ url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ1KsngstYdFpS8xAUYhlkh6k8GUsonrQEtA&s", grade: "uncommon"},
+	{ url: "https://pbs.twimg.com/media/HIkJBXQW0AA53Od.jpg:large", grade: "uncommon"},
+	{ url: "https://pbs.twimg.com/media/HIkzCFPbUAI4rQb.jpg:large", grade: "uncommon"},
+	{ url: "https://jf.x.com/images/media-preview/2056378429961056602", grade: "uncommon"},
+	{ url: "https://pbs.twimg.com/media/HIoaTN4bwAApxxq.jpg:large", grade: "uncommon"},
+	{ url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9xpBboXERvVR4qYE-6gX9FjhSiFGyftjPog&s", grade: "uncommon"},
+	{ url: "https://pbs.twimg.com/media/HImmoBjbQAA08EJ.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HImj4_wb0AAMnwO.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HImm-3IbQAA3MZ7.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HIg0X-NbwAA80V5.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HImgE7ObgAAtQst.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HIn5AyubYAE6OC_.jpg:large", grade: "rare"},
+	{ url: "https://pbs.twimg.com/media/HIgxO7BW8AA7en2.jpg:large", grade: "rare"},
+    { url: "https://avatars.mds.yandex.net/i?id=94f92724f5046813d0952eeaf21390ffb13914c1-5225268-images-thumbs&n=13", grade: "epic"},
+	{ url: "https://pbs.twimg.com/media/HInS-qCbgAA6sLq.jpg:large", grade: "epic"},
+	{ url: "https://pbs.twimg.com/media/HIQ0bF_aMAAp3f1.jpg:large", grade: "epic"},
+	{ url: "https://media.bunjang.co.kr/product/395547531_3_1773659179_w360.jpg", grade: "epic"},
+	{ url: "https://pbs.twimg.com/media/HInf1gWa0AA1TEo.jpg:large", grade: "legend"},
+	{ url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773006210240563/SPOILER_i.png?ex=6a0d7a92&is=6a0c2912&hm=7027a4b201b17cad1a427e95e421d570f491bbd7abc9e9e5a935c110f0b2c63c&", grade: "legend"},
+	{ url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506161009747038312/SPOILER_fe901f2d1f6489ae65585bd3a03bee4c.png?ex=6a0d413f&is=6a0befbf&hm=3e7440f8d528b6daff7793a4377a9f06808b0f0af08f3cf0d678bd57230c5b56&", grade: "legend"},
+	{ url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506160659748884520/SPOILER_99afccf7acd2e2780e300c212e4e67c9.png?ex=6a0d40ec&is=6a0bef6c&hm=0ebfd331b66b6cc0e72027a784e9a47166dee45b8f776919564dcf7a597e131a&", grade: "legend"},
+	{ url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f593ed&", grade: "mythic"},
+	{ url: "https://pbs.twimg.com/media/HIl8-tEbIAEaZlG.jpg:large", grade: "mythic"},
+	{ url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504772143832105071/SPOILER_i.png?ex=6a0d79c4&is=6a0c2844&hm=5943ec41ee04fb2f77c56b63d18b8128c034e26f848b86a132003094012768cd&", grade: "mythic"},
+	{ url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773725923315845/SPOILER_i.png?ex=6a0d7b3d&is=6a0c29bd&hm=6f66b2c12611802601982b5c9cc59320dbda817f5446dc7b17c4c2f203d714af&", grade: "mythic"},
+	{ url: "https://cdn.discordapp.com/attachments/1506220395391619145/1506220425527693392/KakaoTalk_20260519_175806047.jpg?ex=6a0d7895&is=6a0c2715&hm=352e73ef6bf8a3db1d9c1925f124cf59d24c805d8f41e8d3650f004bd6ba5c7b&", grade: "secret"},
 ];
 
 let collectionPool = [];
@@ -153,10 +198,19 @@ let collectionPool = [];
 let drawCount = 0;
 
 function updateUI() {
-    document.getElementById('countDisplay').innerText =
-        `현재 등록된 이미지: ${myImagePool.length}장 | 총 뽑기 ${drawCount}회`;
 
-    document.getElementById('drawBtn').disabled = myImagePool.length === 0;
+    const remain = 10 - (drawCount % 10 || 10);
+
+    document.getElementById('countDisplay').innerText =
+        `현재 등록된 이미지: ${myImagePool.length}장 | 총 뽑기 횟수: ${drawCount}회`;
+
+    document.getElementById('boostCounter').innerText =
+        remain === 0
+        ? "지금 확률 3배!"
+        : `${remain}회 남음`;
+
+    document.getElementById('drawBtn').disabled =
+        myImagePool.length === 0;
 
     refreshProgress();
 }
@@ -195,16 +249,33 @@ function storeImages(event) {
 
 // 🎲 무작위 이미지 뽑기 함수 (연타 방지 포함)
 // 🎲 가중치 기반 무작위 이미지 뽑기 함수
-function pickMyImage() {
-    const btn = document.getElementById('drawBtn');
-    if (btn.disabled || myImagePool.length === 0) return;
+// 🔒 전역 또는 상위 스코프에 연타 방지 변수 선언 (함수 밖에 위치해야 합니다)
+let isDrawing = false; 
 
-    // 🔒 연타 방지
+function pickMyImage() {
+
+    const btn = document.getElementById('drawBtn');
+
+    // 🛑 [수정] 버튼이 막혀있거나, 이미 뽑기 진행 중이거나, 풀이 비어있으면 실행 차단
+    if (btn.disabled || isDrawing || myImagePool.length === 0) return;
+
+    // 🔒 연타 방지 활성화 (상태 변경 및 버튼 비활성화)
+    isDrawing = true;
     btn.disabled = true;
+
+    // ⭐ 총 뽑기 증가
+    drawCount++;
+
+    // ⭐ 10회마다 확률 3배
+    const boosted = (drawCount % 10 === 0);
 
     // 📊 전체 가중치 계산
     const totalWeight = myImagePool.reduce((sum, item) => {
-        return sum + GRADE_RULES[item.grade].weight;
+        let weight = GRADE_RULES[item.grade].weight;
+        if (boosted && (item.grade === "mythic" || item.grade === "legend" || item.grade === "epic")) {
+            weight *= 3;
+        }
+        return sum + weight;
     }, 0);
 
     // 🎲 랜덤 값 생성
@@ -212,15 +283,15 @@ function pickMyImage() {
 
     // 🎯 가중치 기반 선택
     let targetItem = null;
-
     for (const item of myImagePool) {
-        const weight = GRADE_RULES[item.grade].weight;
-
+        let weight = GRADE_RULES[item.grade].weight;
+        if (boosted && (item.grade === "mythic" || item.grade === "legend" || item.grade === "epic")) {
+            weight *= 3;
+        }
         if (randomNum < weight) {
             targetItem = item;
             break;
         }
-
         randomNum -= weight;
     }
 
@@ -245,17 +316,24 @@ function pickMyImage() {
             ${gradeInfo.name}
         </span>
         <img src="${targetItem.url}" alt="뽑기 결과">
+        ${boosted ? `
+            <div style="position:absolute; bottom:10px; background:#ff4757; color:white; padding:8px 16px; border-radius:20px; font-weight:bold; box-shadow:0 0 20px rgba(255,0,0,0.6);">
+                🔥 신화 / 레전드 / 에픽 확률 3배 발동!
+            </div>
+        ` : ""}
     `;
-	
 
     // 📊 UI 갱신
     refreshProgress();
+    updateUI();
 
-    // ⏳ 버튼 재활성화
+    // ⏳ 1초 후 연타 방지 해제 및 버튼 재활성화
     setTimeout(() => {
+        isDrawing = false; // 🔓 다시 뽑기 가능 상태로 변경
         btn.disabled = false;
     }, 1000);
 }
+
 
 
 // 📊 도감 목록 및 진척도 게이지 새로고침 함수
