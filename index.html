@@ -66,9 +66,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
-        .user-bar span { font-weight: bold; font-size: 15px; }
-        .btn-logout {
+        .user-bar span { font-weight: bold; font-size: 15px; flex: 1; text-align: left; }
+        .user-bar-buttons { display: flex; gap: 8px; }
+        .btn-logout, .btn-backup {
             padding: 6px 14px;
             font-size: 13px;
             background: #eee;
@@ -76,7 +78,7 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .btn-logout:hover { background: #ddd; }
+        .btn-logout:hover, .btn-backup:hover { background: #ddd; }
 
         /* 이미지 등록 구역 */
         .upload-box { border: 2px dashed #007bff; padding: 20px; background: #f0f7ff; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
@@ -89,7 +91,7 @@
         .btn-draw:disabled { background: #ccc; cursor: not-allowed; }
 
         /* 결과 화면 상자 */
-        .result-box { width: 100%; height: 600px; border: 2px solid #ddd; margin-top: 25px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; box-sizing: border-box; position: relative; }
+        .result-box { width: 100%; height: 600px; border: 2px solid #ddd; margin-top: 25px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; position: relative; overflow: hidden; }
 
         /* 등급 텍스트 뱃지 */
         .grade-badge { position: absolute; top: 15px; font-weight: bold; font-size: 14px; padding: 5px 15px; border-radius: 20px; color: white; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -114,13 +116,16 @@
 
         /* 도감 */
         .illustrated-guide { max-width: 500px; margin: 30px auto 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; }
-        .guide-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-reset { padding: 6px 14px; font-size: 13px; font-weight: bold; background: #ff4757; color: white; border: none; border-radius: 6px; cursor: pointer; width: auto; }
-        .btn-reset:hover { background: #ff6b81; }
+        .guide-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .guide-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-reset, .btn-export, .btn-import { padding: 6px 14px; font-size: 13px; font-weight: bold; background: #ff4757; color: white; border: none; border-radius: 6px; cursor: pointer; width: auto; }
+        .btn-reset:hover, .btn-export:hover, .btn-import:hover { background: #ff6b81; }
+        .btn-import { background: #007bff; }
+        .btn-import:hover { background: #0056b3; }
         .progress-container { background: #eee; border-radius: 10px; height: 12px; width: 100%; margin-bottom: 15px; overflow: hidden; }
         .progress-bar { background: linear-gradient(90deg, #ff4757, #ff6b81); height: 100%; width: 0%; transition: width 0.3s ease; }
         .guide-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; min-height: 80px; }
-        .guide-item { width: 100%; aspect-ratio: 1/1; border: 1px dashed #ccc; border-radius: 6px; overflow: hidden; background: #fafafa; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .guide-item { width: 100%; aspect-ratio: 1/1; border: 1px dashed #ccc; border-radius: 6px; overflow: hidden; background: #fafafa; display: flex; align-items: center; justify-content: center; }
         .guide-item img { width: 100%; height: 100%; object-fit: cover; }
         .empty-text { grid-column: span 4; text-align: center; color: #aaa; line-height: 80px; margin: 0; font-size: 14px; }
 
@@ -134,6 +139,37 @@
         .save-status.saving { color: #f39c12; }
         .save-status.saved  { color: #2ecc71; }
         .save-status.error  { color: #e74c3c; }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-content h3 { margin-top: 0; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-confirm { background: #2ecc71; color: white; }
+        .btn-confirm:hover { background: #27ae60; }
+        .btn-cancel { background: #eee; color: #333; }
+        .btn-cancel:hover { background: #ddd; }
 
         /* 애니메이션 */
         @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -176,7 +212,11 @@
     <!-- 유저 정보 바 -->
     <div class="user-bar">
         <span id="userLabel">👤 닉네임</span>
-        <button class="btn-logout" onclick="logout()">로그아웃</button>
+        <div class="user-bar-buttons">
+            <button class="btn-backup" onclick="exportCollection()" title="도감 백업">💾 내보내기</button>
+            <button class="btn-backup" onclick="showImportModal()" title="도감 복원">📥 불러오기</button>
+            <button class="btn-logout" onclick="logout()">로그아웃</button>
+        </div>
     </div>
 
     <div class="container">
@@ -203,7 +243,11 @@
     <div class="illustrated-guide">
         <div class="guide-title">
             <span>Collected 도감 목록</span>
-            <button class="btn-reset" onclick="resetCollection()">🗑️ 도감 초기화</button>
+            <div class="guide-buttons">
+                <button class="btn-export" onclick="exportCollection()" title="도감 백업">💾</button>
+                <button class="btn-import" onclick="showImportModal()" title="도감 복원">📥</button>
+                <button class="btn-reset" onclick="resetCollection()">🗑️ 초기화</button>
+            </div>
         </div>
         <div id="guideCount" style="color:#ff4757; font-size:14px; margin-bottom:8px;">인생 망치는 도감 진행도: 0% (0/0종)</div>
         <div class="progress-container">
@@ -215,6 +259,20 @@
         <div class="save-status" id="saveStatus"></div>
     </div>
 
+</div>
+
+<!-- 모달: 백업 불러오기 -->
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <h3>📥 도감 불러오기</h3>
+        <p>JSON 파일을 선택하거나 데이터를 붙여넣으세요</p>
+        <input type="file" id="importFile" accept=".json" style="margin-bottom:15px; width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+        <textarea id="importData" placeholder="또는 JSON 데이터를 여기에 붙여넣으세요" style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; font-family:monospace; font-size:12px; margin-bottom:15px;"></textarea>
+        <div class="modal-buttons">
+            <button class="modal-btn btn-confirm" onclick="importCollection()">불러오기</button>
+            <button class="modal-btn btn-cancel" onclick="closeImportModal()">취소</button>
+        </div>
+    </div>
 </div>
 
 <!-- Firebase SDK -->
@@ -271,13 +329,13 @@ let myImagePool = [
     { url: "https://media.bunjang.co.kr/product/395547531_3_1773659179_w360.jpg", grade: "epic"},
     { url: "https://pbs.twimg.com/media/HInf1gWa0AA1TEo.jpg:large", grade: "legend"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773006210240563/SPOILER_i.png?ex=6a0d7a92&is=6a0c2912&hm=7027a4b201b17cad1a427e95e421d570f491bbd7abc9e9e5a935c110f0b2c63c&", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506161009747038312/SPOILER_fe901f2d1f6489ae65585bd3a03bee4c.png?ex=6a0d413f&is=6a0befbf&hm=3e7440f8d528b6daff7793a4377a9f06808b0f0af08f3cf0d678bd57230c5b56&", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506160659748884520/SPOILER_99afccf7acd2e2780e300c212e4e67c9.png?ex=6a0d40ec&is=6a0bef6c&hm=0ebfd331b66b6cc0e72027a784e9a47166dee45b8f776919564dcf7a597e131a&", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f593ed&", grade: "mythic"},
+    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506161009747038312/SPOILER_fe901f2d1f6489ae65585bd3a03bee4c.png?ex=6a0d413f&is=6a0befbf&hm=3e7440f8d528b6daff7793a4377a9f06808b0", grade: "legend"},
+    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506160659748884520/SPOILER_99afccf7acd2e2780e300c212e4e67c9.png?ex=6a0d40ec&is=6a0bef6c&hm=0ebfd331b66b6cc0e72027a784e9a47166dee", grade: "legend"},
+    { url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f5", grade: "legend"},
     { url: "https://pbs.twimg.com/media/HIl8-tEbIAEaZlG.jpg:large", grade: "mythic"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504772143832105071/SPOILER_i.png?ex=6a0d79c4&is=6a0c2844&hm=5943ec41ee04fb2f77c56b63d18b8128c034e26f848b86a132003094012768cd&", grade: "mythic"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773725923315845/SPOILER_i.png?ex=6a0d7b3d&is=6a0c29bd&hm=6f66b2c12611802601982b5c9cc59320dbda817f5446dc7b17c4c2f203d714af&", grade: "mythic"},
-    { url: "https://cdn.discordapp.com/attachments/1506220395391619145/1506220425527693392/KakaoTalk_20260519_175806047.jpg?ex=6a0d7895&is=6a0c2715&hm=352e73ef6bf8a3db1d9c1925f124cf59d24c805d8f41e8d3650f004bd6ba5c7b&", grade: "secret"},
+    { url: "https://cdn.discordapp.com/attachments/1506220395391619145/1506220425527693392/KakaoTalk_20260519_175806047.jpg?ex=6a0d7895&is=6a0c2715&hm=352e73ef6bf8a3db1d9c1925f124cf59d24c805d8f41e8d36", grade: "mythic"}
 ];
 
 // ========== 상태 변수 ==========
@@ -285,6 +343,7 @@ let currentUser = null;
 let collectionPool = [];
 let drawCount = 0;
 let isDrawing = false;
+const STORAGE_KEY = 'gacha777_backup';
 
 // ========== 로그인 / 로그아웃 ==========
 window.startGame = async function() {
@@ -370,11 +429,116 @@ async function saveUserData() {
         statusEl.className = 'save-status saved';
         statusEl.innerText = '✅ 저장 완료!';
         setTimeout(() => { statusEl.innerText = ''; }, 2000);
+        
+        // 로컬 백업도 업데이트
+        saveLocalBackup();
     } catch (e) {
         statusEl.className = 'save-status error';
         statusEl.innerText = '❌ 저장 실패. 인터넷 연결을 확인하세요.';
     }
 }
+
+// ========== 로컬 백업 저장 ==========
+function saveLocalBackup() {
+    try {
+        const backup = {
+            version: "1.0",
+            nickname: currentUser,
+            timestamp: new Date().toISOString(),
+            collection: collectionPool,
+            drawCount: drawCount
+        };
+        localStorage.setItem(`${STORAGE_KEY}_${currentUser}`, JSON.stringify(backup));
+    } catch (e) {
+        console.error("로컬 백업 저장 실패:", e);
+    }
+}
+
+// ========== 내보내기 ==========
+window.exportCollection = function() {
+    const backup = {
+        version: "1.0",
+        nickname: currentUser,
+        timestamp: new Date().toISOString(),
+        collection: collectionPool,
+        drawCount: drawCount,
+        imagePoolCount: myImagePool.length
+    };
+
+    const dataStr = JSON.stringify(backup, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `gacha777_${currentUser}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert('✅ 도감 백업이 완료됐습니다!');
+};
+
+// ========== 불러오기 모달 ==========
+window.showImportModal = function() {
+    document.getElementById('importModal').classList.add('show');
+};
+
+window.closeImportModal = function() {
+    document.getElementById('importModal').classList.remove('show');
+    document.getElementById('importFile').value = '';
+    document.getElementById('importData').value = '';
+};
+
+// ========== 불러오기 실행 ==========
+window.importCollection = async function() {
+    const fileInput = document.getElementById('importFile');
+    const textInput = document.getElementById('importData');
+    let data = null;
+
+    try {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const text = await file.text();
+            data = JSON.parse(text);
+        } else if (textInput.value.trim()) {
+            data = JSON.parse(textInput.value);
+        } else {
+            alert('❌ 파일을 선택하거나 데이터를 입력해주세요!');
+            return;
+        }
+
+        // 데이터 검증
+        if (!data.collection || !Array.isArray(data.collection)) {
+            alert('❌ 잘못된 백업 파일입니다!');
+            return;
+        }
+
+        // 기존 도감과 병합 (중복 제거)
+        const existingUrls = new Set(collectionPool.map(item => item.url));
+        const newItems = data.collection.filter(item => !existingUrls.has(item.url));
+        
+        collectionPool = [...collectionPool, ...newItems];
+        drawCount = Math.max(drawCount, data.drawCount || 0);
+
+        refreshProgress();
+        updateUI();
+        await saveUserData();
+
+        alert(`✅ ${newItems.length}개의 새로운 아이템을 추가했습니다!`);
+        closeImportModal();
+    } catch (e) {
+        alert(`❌ 불러오기 실패: ${e.message}`);
+    }
+};
+
+// 모달 밖 클릭 시 닫기
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('importModal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeImportModal();
+    });
+});
 
 // ========== 도감 초기화 ==========
 window.resetCollection = async function() {
@@ -461,7 +625,7 @@ window.pickMyImage = async function() {
     resultDisplay.innerHTML = `
         <span class="grade-badge ${gradeInfo.bgClass}">${gradeInfo.name}</span>
         <img src="${targetItem.url}" alt="뽑기 결과">
-        ${boosted ? `<div style="position:absolute;bottom:10px;background:#ff4757;color:white;padding:8px 16px;border-radius:20px;font-weight:bold;box-shadow:0 0 20px rgba(255,0,0,0.6);">🔥 신화 / 레전드 / 에픽 확률 3배 발동!</div>` : ""}
+        ${boosted ? `<div style="position:absolute;bottom:10px;background:#ff4757;color:white;padding:8px 16px;border-radius:20px;font-weight:bold;box-shadow:0 0 20px rgba(255,0,0,0.6);">🔥 신화 3배!</div>` : ''}
     `;
 
     refreshProgress();
