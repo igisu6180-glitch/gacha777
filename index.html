@@ -366,7 +366,7 @@ async function saveUserData() {
             collection: collectionPool,
             drawCount: drawCount,
             updatedAt: new Date().toISOString()
-        });
+        }, { merge: true });
         statusEl.className = 'save-status saved';
         statusEl.innerText = '✅ 저장 완료!';
         setTimeout(() => { statusEl.innerText = ''; }, 2000);
@@ -381,7 +381,11 @@ window.resetCollection = async function() {
     if (!confirm(`${currentUser}님의 도감을 초기화할까요? 이 작업은 되돌릴 수 없어요!`)) return;
     collectionPool = [];
     drawCount = 0;
-    await saveUserData();
+    // 초기화 시에도 비밀번호 유지
+    try {
+        const docRef = doc(db, "users", currentUser);
+        await setDoc(docRef, { collection: [], drawCount: 0, updatedAt: new Date().toISOString() }, { merge: true });
+    } catch(e) {}
     refreshProgress();
     updateUI();
     document.getElementById('resultDisplay').innerHTML = '<p style="color:#aaa;">버튼을 눌러 이미지를 뽑아보세요!</p>';
