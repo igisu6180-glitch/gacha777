@@ -26,6 +26,17 @@
             margin-bottom: 12px;
         }
         #nicknameInput:focus { border-color: #ff4757; outline: none; }
+        #passwordInput {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        #passwordInput:focus { border-color: #ff4757; outline: none; }
+        .login-error { color: #e74c3c; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
         .btn-login {
             width: 100%;
             padding: 14px;
@@ -154,6 +165,8 @@
     <h2>🎰 야짤 가챠</h2>
     <p style="color:#888; margin-bottom:24px;">닉네임을 입력하면 도감이 자동 저장돼요!</p>
     <input type="text" id="nicknameInput" placeholder="닉네임 입력 (예: 철수)" maxlength="20">
+    <input type="password" id="passwordInput" placeholder="비밀번호 입력" maxlength="30">
+    <div class="login-error" id="loginError"></div>
     <button class="btn-login" onclick="startGame()">🎲 시작하기</button>
 </div>
 
@@ -276,7 +289,33 @@ let isDrawing = false;
 // ========== 로그인 / 로그아웃 ==========
 window.startGame = async function() {
     const nickname = document.getElementById('nicknameInput').value.trim();
-    if (!nickname) { alert('닉네임을 입력해주세요!'); return; }
+    const password = document.getElementById('passwordInput').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.innerText = '';
+
+    if (!nickname) { errorEl.innerText = '닉네임을 입력해주세요!'; return; }
+    if (!password)  { errorEl.innerText = '비밀번호를 입력해주세요!'; return; }
+
+    // Firebase에서 기존 유저 확인
+    try {
+        const docRef = doc(db, "users", nickname);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            // 기존 유저 → 비밀번호 일치 확인
+            const savedPassword = docSnap.data().password;
+            if (savedPassword !== password) {
+                errorEl.innerText = '❌ 비밀번호가 틀렸어요!';
+                return;
+            }
+        } else {
+            // 신규 유저 → 비밀번호 저장
+            await setDoc(docRef, { password, collection: [], drawCount: 0, updatedAt: new Date().toISOString() });
+        }
+    } catch (e) {
+        errorEl.innerText = '❌ 서버 연결 실패. 잠시 후 다시 시도해주세요.';
+        return;
+    }
 
     currentUser = nickname;
     document.getElementById('userLabel').innerText = `👤 ${nickname}`;
@@ -449,6 +488,9 @@ function refreshProgress() {
 
 // Enter키로 로그인
 document.getElementById('nicknameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('passwordInput').focus();
+});
+document.getElementById('passwordInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') window.startGame();
 });
 
