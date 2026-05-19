@@ -6,52 +6,8 @@
     <style>
         body { font-family: sans-serif; text-align: center; background: #f9f9f9; padding: 20px; }
 
-        /* 닉네임 로그인 화면 */
-        #loginScreen {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-        #loginScreen h2 { margin-bottom: 20px; }
-        #nicknameInput {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            margin-bottom: 12px;
-        }
-        #nicknameInput:focus { border-color: #ff4757; outline: none; }
-        #passwordInput {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            margin-bottom: 12px;
-        }
-        #passwordInput:focus { border-color: #ff4757; outline: none; }
-        .login-error { color: #e74c3c; font-size: 13px; margin-bottom: 10px; min-height: 18px; }
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            font-size: 18px;
-            font-weight: bold;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .btn-login:hover { background: #ff6b81; }
-
         /* 메인 게임 화면 */
-        #gameScreen { display: none; }
+        #gameScreen { display: block; }
 
         .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
@@ -70,7 +26,7 @@
         }
         .user-bar span { font-weight: bold; font-size: 15px; flex: 1; text-align: left; }
         .user-bar-buttons { display: flex; gap: 8px; }
-        .btn-logout, .btn-backup {
+        .btn-backup {
             padding: 6px 14px;
             font-size: 13px;
             background: #eee;
@@ -78,7 +34,7 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .btn-logout:hover, .btn-backup:hover { background: #ddd; }
+        .btn-backup:hover { background: #ddd; }
 
         /* 이미지 등록 구역 */
         .upload-box { border: 2px dashed #007bff; padding: 20px; background: #f0f7ff; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
@@ -196,26 +152,15 @@
 </head>
 <body>
 
-<!-- ===== 닉네임 로그인 화면 ===== -->
-<div id="loginScreen">
-    <h2>🎰 야짤 가챠</h2>
-    <p style="color:#888; margin-bottom:24px;">닉네임을 입력하면 도감이 자동 저장돼요!</p>
-    <input type="text" id="nicknameInput" placeholder="닉네임 입력 (예: 철수)" maxlength="20">
-    <input type="password" id="passwordInput" placeholder="비밀번호 입력" maxlength="30">
-    <div class="login-error" id="loginError"></div>
-    <button class="btn-login" onclick="startGame()">🎲 시작하기</button>
-</div>
-
 <!-- ===== 메인 게임 화면 ===== -->
 <div id="gameScreen">
 
     <!-- 유저 정보 바 -->
     <div class="user-bar">
-        <span id="userLabel">👤 닉네임</span>
+        <span>🎰 야짤 가챠</span>
         <div class="user-bar-buttons">
             <button class="btn-backup" onclick="exportCollection()" title="도감 백업">💾 내보내기</button>
             <button class="btn-backup" onclick="showImportModal()" title="도감 복원">📥 불러오기</button>
-            <button class="btn-logout" onclick="logout()">로그아웃</button>
         </div>
     </div>
 
@@ -254,7 +199,7 @@
             <div class="progress-bar" id="progressBar"></div>
         </div>
         <div class="guide-grid" id="guideGrid">
-            <p class="empty-text">아직 수집된 이미지가 없습니다.</p>
+            <p class="empty-text">��직 수집된 이미지가 없습니다.</p>
         </div>
         <div class="save-status" id="saveStatus"></div>
     </div>
@@ -267,7 +212,7 @@
         <h3>📥 도감 불러오기</h3>
         <p>JSON 파일을 선택하거나 데이터를 붙여넣으세요</p>
         <input type="file" id="importFile" accept=".json" style="margin-bottom:15px; width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
-        <textarea id="importData" placeholder="또는 JSON 데이터를 여기에 붙여넣으세요" style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; font-family:monospace; font-size:12px; margin-bottom:15px;"></textarea>
+        <textarea id="importData" placeholder="또는 JSON 데이터를 여기에 붙여넣으세요" style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;"></textarea>
         <div class="modal-buttons">
             <button class="modal-btn btn-confirm" onclick="importCollection()">불러오기</button>
             <button class="modal-btn btn-cancel" onclick="closeImportModal()">취소</button>
@@ -275,24 +220,7 @@
     </div>
 </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCpFab9jEZ0NtibLVjmlcw-E4OhG5Eq790",
-    authDomain: "gacha-b3cf0.firebaseapp.com",
-    projectId: "gacha-b3cf0",
-    storageBucket: "gacha-b3cf0.firebasestorage.app",
-    messagingSenderId: "968732889881",
-    appId: "1:968732889881:web:70a3f4110194ff0448eb88",
-    measurementId: "G-FLPPXNBTWV"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 // ========== 등급 설정 ==========
 const GRADE_RULES = {
     secret:  { name: "🌌 비밀",   class: "rarity-secret",  bgClass: "bg-secret",  weight: 0.00000001 },
@@ -329,80 +257,35 @@ let myImagePool = [
     { url: "https://media.bunjang.co.kr/product/395547531_3_1773659179_w360.jpg", grade: "epic"},
     { url: "https://pbs.twimg.com/media/HInf1gWa0AA1TEo.jpg:large", grade: "legend"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773006210240563/SPOILER_i.png?ex=6a0d7a92&is=6a0c2912&hm=7027a4b201b17cad1a427e95e421d570f491bbd7abc9e9e5a935c110f0b2c63c&", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506161009747038312/SPOILER_fe901f2d1f6489ae65585bd3a03bee4c.png?ex=6a0d413f&is=6a0befbf&hm=3e7440f8d528b6daff7793a4377a9f06808b0", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506160659748884520/SPOILER_99afccf7acd2e2780e300c212e4e67c9.png?ex=6a0d40ec&is=6a0bef6c&hm=0ebfd331b66b6cc0e72027a784e9a47166dee", grade: "legend"},
-    { url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f5", grade: "legend"},
+    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506161009747038312/SPOILER_fe901f2d1f6489ae65585bd3a03bee4c.png?ex=6a0d413f&is=6a0befbf&hm=3e7440f8d528b6daff7793a4377a9f06808b0&", grade: "legend"},
+    { url: "https://cdn.discordapp.com/attachments/1444326900578255030/1506160659748884520/SPOILER_99afccf7acd2e2780e300c212e4e67c9.png?ex=6a0d40ec&is=6a0bef6c&hm=0ebfd331b66b6cc0e72027a784e9a47166dee&", grade: "legend"},
+    { url: "https://cdn.discordapp.com/attachments/1413934861743558726/1505954447342174328/2025-09-05_000252.png?ex=6a0c80df&is=6a0b2f5f&hm=d940abf8b4914e30020b4fb6acd864a9a7bda770129e35f853ff8f53e4f5&", grade: "legend"},
     { url: "https://pbs.twimg.com/media/HIl8-tEbIAEaZlG.jpg:large", grade: "mythic"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504772143832105071/SPOILER_i.png?ex=6a0d79c4&is=6a0c2844&hm=5943ec41ee04fb2f77c56b63d18b8128c034e26f848b86a132003094012768cd&", grade: "mythic"},
     { url: "https://cdn.discordapp.com/attachments/1445707376861905018/1504773725923315845/SPOILER_i.png?ex=6a0d7b3d&is=6a0c29bd&hm=6f66b2c12611802601982b5c9cc59320dbda817f5446dc7b17c4c2f203d714af&", grade: "mythic"},
-    { url: "https://cdn.discordapp.com/attachments/1506220395391619145/1506220425527693392/KakaoTalk_20260519_175806047.jpg?ex=6a0d7895&is=6a0c2715&hm=352e73ef6bf8a3db1d9c1925f124cf59d24c805d8f41e8d36", grade: "mythic"}
+    { url: "https://cdn.discordapp.com/attachments/1506220395391619145/1506220425527693392/KakaoTalk_20260519_175806047.jpg?ex=6a0d7895&is=6a0c2715&hm=352e73ef6bf8a3db1d9c1925f124cf59d24c805d8f41e8d36&", grade: "mythic"},
 ];
 
 // ========== 상태 변수 ==========
-let currentUser = null;
 let collectionPool = [];
 let drawCount = 0;
 let isDrawing = false;
-const STORAGE_KEY = 'gacha777_backup';
+const STORAGE_KEY = 'gacha777_data';
 
-// ========== 로그인 / 로그아웃 ==========
-window.startGame = async function() {
-    const nickname = document.getElementById('nicknameInput').value.trim();
-    const password = document.getElementById('passwordInput').value;
-    const errorEl = document.getElementById('loginError');
-    errorEl.innerText = '';
-
-    if (!nickname) { errorEl.innerText = '닉네임을 입력해주세요!'; return; }
-    if (!password)  { errorEl.innerText = '비밀번호를 입력해주세요!'; return; }
-
-    // Firebase에서 기존 유저 확인
-    try {
-        const docRef = doc(db, "users", nickname);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            // 기존 유저 → 비밀번호 일치 확인
-            const savedPassword = docSnap.data().password;
-            if (savedPassword !== password) {
-                errorEl.innerText = '❌ 비밀번호가 틀렸어요!';
-                return;
-            }
-        } else {
-            // 신규 유저 → 비밀번호 저장
-            await setDoc(docRef, { password, collection: [], drawCount: 0, updatedAt: new Date().toISOString() });
-        }
-    } catch (e) {
-        errorEl.innerText = '❌ 서버 연결 실패. 잠시 후 다시 시도해주세요.';
-        return;
-    }
-
-    currentUser = nickname;
-    document.getElementById('userLabel').innerText = `👤 ${nickname}`;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('gameScreen').style.display = 'block';
-
-    await loadUserData();
+// ========== 초기화 ==========
+window.addEventListener('load', function() {
+    loadUserData();
     updateUI();
-};
+});
 
-window.logout = function() {
-    currentUser = null;
-    collectionPool = [];
-    drawCount = 0;
-    document.getElementById('gameScreen').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('nicknameInput').value = '';
-};
-
-// ========== Firebase: 불러오기 ==========
-async function loadUserData() {
+// ========== 로컬 저장소: 불러오기 ==========
+function loadUserData() {
     try {
-        const docRef = doc(db, "users", currentUser);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            collectionPool = data.collection || [];
-            drawCount = data.drawCount || 0;
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+            const parsed = JSON.parse(data);
+            collectionPool = parsed.collection || [];
+            drawCount = parsed.drawCount || 0;
         } else {
             collectionPool = [];
             drawCount = 0;
@@ -410,47 +293,29 @@ async function loadUserData() {
         refreshProgress();
     } catch (e) {
         console.error("불러오기 실패:", e);
+        collectionPool = [];
+        drawCount = 0;
     }
 }
 
-// ========== Firebase: 저장 ==========
-async function saveUserData() {
-    if (!currentUser) return;
+// ========== 로컬 저장소: 저장 ==========
+function saveUserData() {
     const statusEl = document.getElementById('saveStatus');
     statusEl.className = 'save-status saving';
     statusEl.innerText = '💾 저장 중...';
     try {
-        const docRef = doc(db, "users", currentUser);
-        await setDoc(docRef, {
+        const data = {
             collection: collectionPool,
             drawCount: drawCount,
-            updatedAt: new Date().toISOString()
-        }, { merge: true });
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         statusEl.className = 'save-status saved';
         statusEl.innerText = '✅ 저장 완료!';
         setTimeout(() => { statusEl.innerText = ''; }, 2000);
-        
-        // 로컬 백업도 업데이트
-        saveLocalBackup();
     } catch (e) {
         statusEl.className = 'save-status error';
-        statusEl.innerText = '❌ 저장 실패. 인터넷 연결을 확인하세요.';
-    }
-}
-
-// ========== 로컬 백업 저장 ==========
-function saveLocalBackup() {
-    try {
-        const backup = {
-            version: "1.0",
-            nickname: currentUser,
-            timestamp: new Date().toISOString(),
-            collection: collectionPool,
-            drawCount: drawCount
-        };
-        localStorage.setItem(`${STORAGE_KEY}_${currentUser}`, JSON.stringify(backup));
-    } catch (e) {
-        console.error("로컬 백업 저장 실패:", e);
+        statusEl.innerText = '❌ 저장 실패. 저장소 공간을 확인하세요.';
     }
 }
 
@@ -458,7 +323,6 @@ function saveLocalBackup() {
 window.exportCollection = function() {
     const backup = {
         version: "1.0",
-        nickname: currentUser,
         timestamp: new Date().toISOString(),
         collection: collectionPool,
         drawCount: drawCount,
@@ -470,7 +334,7 @@ window.exportCollection = function() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `gacha777_${currentUser}_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `gacha777_backup_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -523,7 +387,7 @@ window.importCollection = async function() {
 
         refreshProgress();
         updateUI();
-        await saveUserData();
+        saveUserData();
 
         alert(`✅ ${newItems.length}개의 새로운 아이템을 추가했습니다!`);
         closeImportModal();
@@ -542,14 +406,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ========== 도감 초기화 ==========
 window.resetCollection = async function() {
-    if (!confirm(`${currentUser}님의 도감을 초기화할까요? 이 작업은 되돌릴 수 없어요!`)) return;
+    if (!confirm(`도감을 초기화할까요? 이 작업은 되돌릴 수 없어요!`)) return;
     collectionPool = [];
     drawCount = 0;
-    // 초기화 시에도 비밀번호 유지
-    try {
-        const docRef = doc(db, "users", currentUser);
-        await setDoc(docRef, { collection: [], drawCount: 0, updatedAt: new Date().toISOString() }, { merge: true });
-    } catch(e) {}
+    saveUserData();
     refreshProgress();
     updateUI();
     document.getElementById('resultDisplay').innerHTML = '<p style="color:#aaa;">버튼을 눌러 이미지를 뽑아보세요!</p>';
@@ -630,7 +490,7 @@ window.pickMyImage = async function() {
 
     refreshProgress();
     updateUI();
-    await saveUserData();
+    saveUserData();
 
     setTimeout(() => { isDrawing = false; btn.disabled = false; }, 1000);
 };
@@ -653,15 +513,6 @@ function refreshProgress() {
         </div>
     `).join('');
 }
-
-// Enter키로 로그인
-document.getElementById('nicknameInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('passwordInput').focus();
-});
-document.getElementById('passwordInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') window.startGame();
-});
-
 </script>
 </body>
 </html>
